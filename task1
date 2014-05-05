@@ -1,0 +1,134 @@
+import math
+Pi = math.pi
+L = 10
+h = 0.1
+
+#####################################################################################
+def k_1 ( x ):
+	return math.cos(2*Pi*x)**2 + 1
+def q_1 (x):
+	return math.sin(2*Pi*x)+1.5
+def f_1 (x):
+	return math.sin(2*Pi*x)
+def k_2 ( x ):
+	return 2
+def q_2 (x):
+	return 1.5
+def f_2 (x):
+	return math.sin(2*Pi*x)
+# note: function also modifies b[] and d[] params while solving
+def TDMASolve(a, b, c, d):
+    n = len(d) # n is the numbers of rows, a and c has length n-1
+    for i in range(n-1):
+        d[i+1] -= d[i] * a[i] / b[i]
+        b[i+1] -= c[i] * a[i] / b[i]
+    for i in reversed(range(n-1)):
+        d[i] -= d[i+1] * c[i] / b[i+1]
+    return [d[i] / b[i] for i in range(n)] # return the solution
+
+def sol_2 (x):
+	return math.sin(2*Pi*x)/(8*Pi + 1.5)
+#####################################################################################
+
+def solution ( h ):
+	L = int(1/h)
+	x = []; k = []; q = []; f = []
+	for i in range ( L + 1 ):
+		x.append( 0 + i*h )
+	for i in range (L + 1):
+		q.append(q_1(x[i]))
+	for i in range (L + 1):
+		f.append(f_1(x[i]))
+	for i in range ( L  + 1 ):
+		k.append( k_1(0.05 + i*h) )
+	a = []; b = []; c = []; d = []; d_0 = []
+	for i in range (L):
+		a.append(k[i+1])
+	for i in range (L):
+		b.append(-(k[i+1] + k[i] + q[i]*h**2))
+	for i in range (L):
+		c.append(k[i])
+	for i in range(L):
+		d.append(-f[i]*h**2)
+	for i in range(L):
+		d_0.append(0)
+	v = TDMASolve(c,b,a,d)
+	v[0] = 0
+	v[9] = v[0]
+	w = TDMASolve(c,b,a,d_0)
+	w[0] = 1
+	w[9] = w[0]
+	u_0 = (k[0]*v[0] + k[L-1]*v[L-1] + f[0]*h**2)/(k[0] + k[L-1]+q[0]*h**2 - k[0]*w[0]-k[L-1]*w[L-1])
+	sol = []
+	sol.append(u_0)
+	for i in range (L):
+		sol.append(v[i] + sol[i]*w[i])
+	return sol
+
+def solution_static ( h ):
+	L = int(1/h)
+	x = []; k = []; q = []; f = []
+	for i in range ( L + 1 ):
+		x.append( 0 + i*h )
+	for i in range (L + 1):
+		q.append(q_2(x[i]))
+	for i in range (L + 1):
+		f.append(f_2(x[i]))
+	for i in range ( L  + 1 ):
+		k.append( k_2(0.05 + i*h) )
+	a = []; b = []; c = []; d = []; d_0 = []
+	for i in range (L):
+		a.append(k[i+1])
+	for i in range (L):
+		b.append(-(k[i+1] + k[i] + q[i]*h**2))
+	for i in range (L):
+		c.append(k[i])
+	for i in range(L):
+		d.append(-f[i]*h**2)
+	for i in range(L):
+		d_0.append(0)
+	v = TDMASolve(c,b,a,d)
+	#v[0] = 0
+	#v[9] = v[0]
+	w = TDMASolve(c,b,a,d_0)
+	#w[0] = 1
+	#w[9] = w[0]
+	u_0 = (k[0]*v[0] + k[L-1]*v[L-1] + f[0]*h**2)/(k[0] + k[L-1]+q[0]*h**2 - k[0]*w[0]-k[L-1]*w[L-1])
+	sol = []
+	sol.append(u_0)
+	for i in range (L):
+		sol.append(v[i] + sol[i]*w[i])
+	return sol
+
+
+########################################################################################
+
+sol = []
+for i in range (4):
+	sol.append([])
+for i in range (10):
+	sol[0].append(solution(0.1)[i])
+for i in range (20):
+	if i%2 == 0:
+		sol[1].append(solution(0.05)[i])
+for i in range (40):
+	if i%4 == 0:
+		sol[2].append(solution(0.025)[i])
+for i in range (80):
+	if i%8 == 0:
+		sol[3].append(solution(0.0125)[i])
+print ("1st task:")
+for j in range (10):
+	print ('x =','%.1f:' % round(j*h,1),'%.4f' % round(sol[0][j], 4), '%.4f' % round(sol[1][j], 4), '%.4f' % round(sol[2][j], 4),'%.4f' % round(sol[3][j], 4))
+	print ('eps1 = %.4f' % round(abs(sol[0][j] - sol[1][j]),4),'eps2 = %.4f' % round(abs(sol[1][j] - sol[2][j]),4), 'eps3 = %.4f' % round(abs(sol[2][j] - sol[3][j]),4),)
+print ('#########################################################################')
+print ("2d task:")
+for i in range (10):
+	print ('x =','%.1f:' % round(i*h,1),'%.4f' % round(solution_static(0.1)[i], 4), '%.4f' % round( sol_2(i * h), 4), 'eps =', '%.4f' % round(abs(solution_static(0.1)[i] - sol_2(i * h)),4))
+
+
+
+
+
+	
+ 
